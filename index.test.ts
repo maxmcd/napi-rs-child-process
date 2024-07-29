@@ -1,21 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { ChildProcess, spawn } from "./index";
-import { Readable } from "node:stream";
-
-const exitPromise = async (cp: ChildProcess) =>
-  await new Promise<{
-    code: number | null;
-    signal: NodeJS.Signals | null;
-  }>((resolve) => cp.on("exit", (code, signal) => resolve({ code, signal })));
-
-const stdioPromise = async (stdio: Readable) => {
-  return new Promise<string>((resolve) => {
-    let out: Buffer[] = [];
-    stdio
-      .on("data", (data) => out.push(data))
-      .on("close", () => resolve(Buffer.concat(out).toString()));
-  });
-};
+import { spawn } from "./index";
+import { exitPromise, stdioPromise } from "./testutil";
 
 describe("implement child_process.spawn", { timeout: 500 }, () => {
   it("can run a command", async () => {
@@ -27,6 +12,16 @@ describe("implement child_process.spawn", { timeout: 500 }, () => {
     expect(code).toBe(0);
     expect(signal).toBe(null);
     expect(stdout).toBe("hello\n");
+  });
+  it("can env vars", async () => {
+    let cp = spawn("bash", ["-c", "echo $HI"], { env: { HI: "ho" } });
+    let [{ code, signal }, stdout] = await Promise.all([
+      exitPromise(cp),
+      stdioPromise(cp.stdout),
+    ]);
+    expect(code).toBe(0);
+    expect(signal).toBe(null);
+    expect(stdout).toBe("ho\n");
   });
   it.each([
     ["kill $$", [null, "SIGTERM"]],

@@ -1,33 +1,69 @@
 #![deny(clippy::all)]
-
+use napi::bindgen_prelude::{Buffer, Object};
+use napi::threadsafe_function::{ThreadsafeFunction, ThreadsafeFunctionCallMode};
+use napi::{Env, JsObject, Result};
+use std::collections::HashMap;
 use std::os::unix::process::ExitStatusExt;
 use std::process::Stdio;
-
 use tokio::io::AsyncReadExt;
 use tokio::process::Command;
 
-use napi::bindgen_prelude::Buffer;
-use napi::threadsafe_function::{ThreadsafeFunction, ThreadsafeFunctionCallMode};
-use napi::{Env, JsObject, Result};
-
 #[macro_use]
 extern crate napi_derive;
+
+#[napi(object)]
+pub struct NapiSpawnOptions {
+  pub cwd: Option<String>,
+  pub env: Option<Object>,
+  pub argv0: Option<String>,
+}
+
+impl NapiSpawnOptions {
+  fn get_env(&self) -> HashMap<String, String> {
+    if let Some(cmd_env) = &self.env {
+      if let Ok(keys) = Object::keys(&cmd_env) {
+        return keys
+          .into_iter()
+          .filter_map(|key| {
+            cmd_env
+              .get::<&String, String>(&key)
+              .ok()
+              .flatten()
+              .map(|val| (key, val))
+          })
+          .collect();
+      }
+    }
+    return HashMap::new();
+  }
+}
 
 #[napi(ts_return_type = "Promise<number>")]
 pub fn op_spawn(
   env: Env,
   cmd: String,
   args: Vec<String>,
+  spawn_options: NapiSpawnOptions,
   exit_cb: ThreadsafeFunction<(i32, i32)>,
   stdout_cb: ThreadsafeFunction<Option<Buffer>>,
   stderr_cb: ThreadsafeFunction<Option<Buffer>>,
 ) -> Result<JsObject> {
+  let envs = spawn_options.get_env();
   env.spawn_future(async move {
-    let mut child = Command::new(cmd)
+    let mut new_command = Command::new(cmd);
+    let mut command = new_command
       .args(args)
+      .envs(envs)
       .stdout(Stdio::piped())
-      .stderr(Stdio::piped())
-      .spawn()?;
+      .stderr(Stdio::piped());
+    if let Some(cwd) = spawn_options.cwd {
+      command = command.current_dir(cwd);
+    }
+    if let Some(argv0) = spawn_options.argv0 {
+      command = command.arg0(argv0);
+    }
+
+    let mut child = command.spawn()?;
 
     let mut stdout = child.stdout.take().unwrap();
     tokio::spawn(async move {
@@ -37,10 +73,11 @@ pub fn op_spawn(
           break;
         }
         stdout_cb.call(
-          Ok(Some(buf[0..size].to_vec().into())),
+          Ok(Some(buf[0..size].to_owned().into())),
           ThreadsafeFunctionCallMode::NonBlocking,
         );
       }
+      // Done reading bytes, call with None to signal end of stream.
       stdout_cb.call(Ok(None), ThreadsafeFunctionCallMode::NonBlocking);
     });
     let mut stderr = child.stderr.take().unwrap();
@@ -51,10 +88,11 @@ pub fn op_spawn(
           break;
         }
         stderr_cb.call(
-          Ok(Some(buf[0..size].to_vec().into())),
+          Ok(Some(buf[0..size].to_owned().into())),
           ThreadsafeFunctionCallMode::NonBlocking,
         );
       }
+      // Done reading bytes, call with None to signal end of stream.
       stderr_cb.call(Ok(None), ThreadsafeFunctionCallMode::NonBlocking);
     });
     let child_id = child.id().unwrap();

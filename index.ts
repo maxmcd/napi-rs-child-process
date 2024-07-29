@@ -1,6 +1,6 @@
 import os from "node:os";
 import { spawn as ogspawn, SpawnOptions } from "child_process";
-import { opSpawn } from "./lib";
+import { opSpawn, NapiSpawnOptions } from "./lib";
 import { EventEmitter, Readable, Writable } from "stream";
 import { aR } from "vitest/dist/reporters-B7ebVMkT.js";
 
@@ -13,6 +13,11 @@ const signalNumbersToNames: { [key: number]: NodeJS.Signals } = Object.entries(
 
 export function spawn(command, options?: SpawnOptions): ChildProcess;
 export function spawn(command, args?: string[]): ChildProcess;
+export function spawn(
+  command,
+  args: string[],
+  options: SpawnOptions
+): ChildProcess;
 export function spawn(
   command: string,
   args?: string[] | SpawnOptions,
@@ -36,14 +41,25 @@ export class ChildProcess extends EventEmitter {
   stdin: null;
   stdout: Readable;
   stderr: Readable;
-  constructor(command: string, args?: string[], options?: SpawnOptions) {
+  constructor(command: string, args?: string[], options: SpawnOptions = {}) {
     super();
+    if (options.detached !== undefined)
+      throw new Error("detached not supported");
     this.#spawnargs = args || [];
     this.stdout = new StdioReadable();
     this.stderr = new StdioReadable();
+
+    if (options.cwd instanceof URL) {
+      throw new Error("passing a URL for cwd is not supported");
+    }
     opSpawn(
       command,
       this.#spawnargs,
+      {
+        cwd: options.cwd as string,
+        env: options.env || process.env,
+        argv0: options.argv0,
+      },
       this.#exitCallback,
       this.#stdoutCallback,
       this.#stderrCallback
