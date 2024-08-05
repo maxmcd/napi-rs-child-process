@@ -20,6 +20,19 @@ permissions:
       - docs/**
   pull_request: null
 jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm ci
+      - name: Lint
+        run: npm run lint
   build:
     strategy:
       fail-fast: false
@@ -91,8 +104,10 @@ jobs:
       fail-fast: false
       matrix:
         settings:
-          - host: macos-latest
+          - host: macos-13
             target: x86_64-apple-darwin
+          - host: macos-latest
+            target: aarch64-apple-darwin
         node:
           - "20"
     runs-on: ${{ matrix.settings.host }}

@@ -38,6 +38,7 @@
     "build:debug": "napi build --js=lib.js --dts=lib.d.ts --platform",
     "prepublishOnly": "napi prepublish -t npm",
     "test": "vitest run",
+    "lint": "npx tsc",
     "universal": "napi universal",
     "version": "napi version"
   }
