@@ -1,20 +1,19 @@
 import os from "node:os";
-import { spawn as ogspawn, SpawnOptions } from "child_process";
-import { opSpawn, NapiSpawnOptions } from "./lib";
-import { EventEmitter, Readable, Writable } from "stream";
-import { aR } from "vitest/dist/reporters-B7ebVMkT.js";
+import { SpawnOptions } from "child_process";
+import { opSpawn } from "./lib.js";
+import { EventEmitter, Readable } from "stream";
 
 const signalNumbersToNames: { [key: number]: NodeJS.Signals } = Object.entries(
   os.constants.signals
-).reduce((acc, [name, number]) => {
-  acc[number] = name;
+).reduce((acc: { [key: number]: NodeJS.Signals }, [name, number]) => {
+  acc[number] = name as NodeJS.Signals;
   return acc;
 }, {});
 
-export function spawn(command, options?: SpawnOptions): ChildProcess;
-export function spawn(command, args?: string[]): ChildProcess;
+export function spawn(command: string, options?: SpawnOptions): ChildProcess;
+export function spawn(command: string, args?: string[]): ChildProcess;
 export function spawn(
-  command,
+  command: string,
   args: string[],
   options: SpawnOptions
 ): ChildProcess;
@@ -33,7 +32,7 @@ class StdioReadable extends Readable {
 }
 
 export class ChildProcess extends EventEmitter {
-  #pid: number;
+  #pid: number | undefined;
   #killed: boolean = false;
   #exitCode: number | null;
   #signalCode: NodeJS.Signals | null;
@@ -48,6 +47,9 @@ export class ChildProcess extends EventEmitter {
     this.#spawnargs = args || [];
     this.stdout = new StdioReadable();
     this.stderr = new StdioReadable();
+    this.#exitCode = null;
+    this.#signalCode = null;
+    this.stdin = null;
 
     if (options.cwd instanceof URL) {
       throw new Error("passing a URL for cwd is not supported");
@@ -69,12 +71,14 @@ export class ChildProcess extends EventEmitter {
         this.emit("error", err);
       });
   }
-  #exitCallback = (err: Error | null, code: number, signal: number) => {
+  #exitCallback = (_err: Error | null, code: number, signal: number) => {
     this.#exitCode = signal === 0 ? code : null;
-    this.#signalCode = signal === 0 ? null : signalNumbersToNames[signal];
+    this.#signalCode =
+      signal === 0 ? null : signalNumbersToNames[signal] || null;
     this.emit("exit", this.#exitCode, this.#signalCode);
   };
   kill(signal?: NodeJS.Signals | number): boolean {
+    if (!this.#pid) return false;
     if (this.#killed) {
       return false;
     }
