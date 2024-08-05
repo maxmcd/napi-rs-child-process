@@ -1,7 +1,8 @@
 import os from "node:os";
 import { SpawnOptions } from "child_process";
 import { opSpawn } from "./lib.js";
-import { EventEmitter, Readable } from "stream";
+import { Readable } from "node:stream";
+import { EventEmitter } from "node:events";
 
 const signalNumbersToNames: { [key: number]: NodeJS.Signals } = Object.entries(
   os.constants.signals
@@ -76,6 +77,7 @@ export class ChildProcess extends EventEmitter {
     this.#signalCode =
       signal === 0 ? null : signalNumbersToNames[signal] || null;
     this.emit("exit", this.#exitCode, this.#signalCode);
+    this.#maybeEmitClose();
   };
   kill(signal?: NodeJS.Signals | number): boolean {
     if (!this.#pid) return false;
@@ -87,11 +89,29 @@ export class ChildProcess extends EventEmitter {
   }
   #stderrCallback = (err: Error | null, chunk: Buffer | undefined | null) => {
     if (err) this.emit("error", err);
-    chunk ? this.stderr.push(chunk) : this.stderr.destroy();
+    if (chunk) {
+      this.stderr.push(chunk);
+    } else {
+      this.stderr.destroy();
+      this.#maybeEmitClose();
+    }
   };
   #stdoutCallback = (err: Error | null, chunk: Buffer | undefined | null) => {
     if (err) this.emit("error", err);
-    chunk ? this.stdout.push(chunk) : this.stdout.destroy();
+    if (chunk) {
+      this.stdout.push(chunk);
+    } else {
+      this.stdout.destroy();
+      this.#maybeEmitClose();
+    }
+  };
+  #maybeEmitClose = () => {
+    if (
+      (this.stdout.closed && this.stderr.closed && this.#exitCode !== null) ||
+      this.#signalCode !== null
+    ) {
+      this.emit("close", this.#exitCode, this.#signalCode);
+    }
   };
   addListener(
     event: "close",

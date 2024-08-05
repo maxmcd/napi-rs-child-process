@@ -59,7 +59,7 @@ export async function execFile(
         stderr,
       })
     );
-    cp.on("exit", (code, signal) => {
+    cp.on("close", (code, signal) => {
       if (code === 0) return resolve({ err: null, stdout, stderr });
       resolve({
         err: new ExecError(`Command failed: ${command}`, code, signal, cmd),

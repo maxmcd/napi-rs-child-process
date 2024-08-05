@@ -1,13 +1,17 @@
 import { describe, it, expect } from "vitest";
 import { execFile } from "./testutil.test.js";
 
-describe("implement child_process.spawn", { timeout: 500 }, () => {
+describe("implement child_process.spawn", { timeout: 5000 }, () => {
   it("can run a command", async () => {
-    expect(await execFile("echo", ["hello"])).toMatchObject({
-      err: null,
-      stderr: "",
-      stdout: "hello\n",
-    });
+    for (let i = 0; i < 100; i++) {
+      const t0 = performance.now();
+      expect(await execFile("echo", ["hello"])).toMatchObject({
+        err: null,
+        stderr: "",
+        stdout: "hello\n",
+      });
+      console.log("echo", performance.now() - t0);
+    }
   });
   it("can pass env vars", async () => {
     expect(
