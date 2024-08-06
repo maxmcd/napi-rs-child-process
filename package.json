@@ -26,16 +26,13 @@
     "@types/eslint": "^8.44.4",
     "typescript": "^5.4.5"
   },
-  "ava": {
-    "timeout": "3m"
-  },
   "engines": {
     "node": ">= 10"
   },
   "scripts": {
     "artifacts": "napi artifacts",
-    "build": "napi build --js=lib.js --dts=lib.d.ts --platform --release",
-    "build:debug": "napi build --js=lib.js --dts=lib.d.ts --platform",
+    "build": "napi build --js=false --platform --release",
+    "build:debug": "napi build --js=false --platform",
     "prepublishOnly": "napi prepublish -t npm",
     "test": "vitest run",
     "lint": "npx tsc",

@@ -1,6 +1,6 @@
 import http from "node:http";
 
-import { execFile } from "./testutil.test.js";
+import { spawn } from "../index.js";
 
 // let foo = await testExecuteTokioCmd((ids, ...values) => {
 //   console.log("callback");
@@ -10,8 +10,11 @@ import { execFile } from "./testutil.test.js";
 
 http
   .createServer(async (_, res) => {
-    let { stdout } = await execFile("echo", ["hello"]);
-    res.end(stdout);
+    spawn("/usr/bin/echo", ["hello"], {
+      env: { PATH: process.env.PATH },
+    }).stdout.on("data", (data) => {
+      res.end(data);
+    });
   })
   .listen(8001)
   .on("listening", async () => {

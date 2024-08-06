@@ -1,8 +1,9 @@
 import os from "node:os";
 import { SpawnOptions } from "child_process";
-import { opSpawn } from "./lib.js";
+import { spawn as op_spawn } from "./lib.js";
 import { Readable } from "node:stream";
 import { EventEmitter } from "node:events";
+import { lookPath } from "./lookPath.js";
 
 const signalNumbersToNames: { [key: number]: NodeJS.Signals } = Object.entries(
   os.constants.signals
@@ -51,26 +52,29 @@ export class ChildProcess extends EventEmitter {
     this.#exitCode = null;
     this.#signalCode = null;
     this.stdin = null;
-
     if (options.cwd instanceof URL) {
       throw new Error("passing a URL for cwd is not supported");
     }
-    opSpawn(
-      command,
-      this.#spawnargs,
-      {
-        cwd: options.cwd as string,
-        env: options.env || process.env,
-        argv0: options.argv0,
-      },
-      this.#exitCallback,
-      this.#stdoutCallback,
-      this.#stderrCallback
-    )
-      .then((pid) => (this.#pid = pid))
-      .catch((err) => {
-        this.emit("error", err);
-      });
+
+    let env = options.env || process.env;
+    lookPath(command, env.PATH)
+      .then((cmd) => {
+        op_spawn(
+          cmd,
+          this.#spawnargs,
+          {
+            cwd: options.cwd as string,
+            env: options.env || process.env,
+            argv0: options.argv0,
+          },
+          this.#exitCallback,
+          this.#stdoutCallback,
+          this.#stderrCallback
+        )
+          .then((pid: number) => (this.#pid = pid))
+          .catch((err: any) => this.emit("error", err));
+      })
+      .catch((err) => this.emit("error", err));
   }
   #exitCallback = (_err: Error | null, code: number, signal: number) => {
     this.#exitCode = signal === 0 ? code : null;

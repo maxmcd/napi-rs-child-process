@@ -1,10 +1,5 @@
 import { SpawnOptions } from "node:child_process";
 import { spawn } from "./index.js";
-import { describe, it } from "vitest";
-
-describe("testutils", () => {
-  it("can exist", () => {});
-});
 
 class ExecError extends Error {
   constructor(
