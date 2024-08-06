@@ -347,12 +347,3 @@ export const opSpawn: (
   stdoutCb: (err: Error | null, arg: Buffer | undefined | null) => any,
   stderrCb: (err: Error | null, arg: Buffer | undefined | null) => any
 ) => Promise<number> = nativeBinding.opSpawn;
-
-export const spawn: (
-  cmd: string,
-  args: Array<string>,
-  spawnOptions: NapiSpawnOptions,
-  exitCb: (err: Error | null, arg0: number, arg1: number) => any,
-  stdoutCb: (err: Error | null, arg: Buffer | undefined | null) => any,
-  stderrCb: (err: Error | null, arg: Buffer | undefined | null) => any
-) => Promise<number> = nativeBinding.spawn;

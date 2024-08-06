@@ -1,6 +1,6 @@
 import os from "node:os";
 import { SpawnOptions } from "child_process";
-import { spawn as op_spawn } from "./lib.js";
+import { opSpawn } from "./lib.js";
 import { Readable } from "node:stream";
 import { EventEmitter } from "node:events";
 import { lookPath } from "./lookPath.js";
@@ -59,7 +59,7 @@ export class ChildProcess extends EventEmitter {
     let env = options.env || process.env;
     lookPath(command, env.PATH)
       .then((cmd) => {
-        op_spawn(
+        opSpawn(
           cmd,
           this.#spawnargs,
           {
