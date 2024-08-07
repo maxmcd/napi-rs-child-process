@@ -21,7 +21,7 @@ pub struct NapiSpawnOptions {
 impl NapiSpawnOptions {
   fn get_env(&self) -> HashMap<String, String> {
     if let Some(cmd_env) = &self.env {
-      if let Ok(keys) = Object::keys(&cmd_env) {
+      if let Ok(keys) = Object::keys(cmd_env) {
         return keys
           .into_iter()
           .filter_map(|key| {
@@ -34,7 +34,7 @@ impl NapiSpawnOptions {
           .collect();
       }
     }
-    return HashMap::new();
+    HashMap::new()
   }
 }
 
@@ -99,10 +99,7 @@ pub fn op_spawn(
     tokio::spawn(async move {
       let status = child.wait().await.unwrap();
       exit_cb.call(
-        Ok((
-          status.code().or(Some(0)).unwrap(),
-          status.signal().or(Some(0)).unwrap(),
-        )),
+        Ok((status.code().unwrap_or(0), status.signal().unwrap_or(0))),
         ThreadsafeFunctionCallMode::NonBlocking,
       );
     });
