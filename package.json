@@ -36,11 +36,12 @@
   "scripts": {
     "artifacts": "napi artifacts",
     "build": "napi build --js=false --platform --release",
+    "build:ts": "npx tsc",
     "build:debug": "napi build --js=false --platform",
     "prepublishOnly": "napi prepublish -t npm",
     "test": "vitest run",
     "bench": "vitest bench --run",
-    "lint": "npx tsc",
+    "lint": "npx tsc --noEmit",
     "universal": "napi universal",
     "version": "napi version"
   }

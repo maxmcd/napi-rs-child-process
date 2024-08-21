@@ -1,6 +1,6 @@
 import http from "node:http";
 
-import { spawn } from "../index.js";
+import { spawn } from "napi-rs-child-process";
 
 // let foo = await testExecuteTokioCmd((ids, ...values) => {
 //   console.log("callback");
