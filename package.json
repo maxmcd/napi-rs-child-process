@@ -1,6 +1,6 @@
 {
   "name": "napi-rs-child-process",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "main": "index.js",
   "types": "index.d.ts",
   "napi": {
@@ -35,14 +35,15 @@
   },
   "scripts": {
     "artifacts": "napi artifacts",
-    "build": "napi build --js=false --platform --release",
+    "build": "napi build --js=false --no-dts-header --release --platform",
     "build:ts": "npx tsc",
-    "build:debug": "napi build --js=false --platform",
+    "build:debug": "napi build --js=false --no-dts-header --platform",
     "prepublishOnly": "napi prepublish -t npm",
     "test": "vitest run",
     "bench": "vitest bench --run",
     "lint": "npx tsc --noEmit",
     "universal": "napi universal",
-    "version": "napi version"
+    "version": "napi version",
+    "bump-version": "npx tsx scripts/bump-version.ts"
   }
 }

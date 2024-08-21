@@ -196,7 +196,9 @@ jobs:
           ls -lah
       - name: compile ts
         run: |
+          rm index.d.ts || true
           npm run build:ts
+          find . -type f -name "*.ts" ! -name "*.d.ts" -exec rm -f {} \;
           ls -lah
       - name: Publish
         run: |
