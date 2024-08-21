@@ -1,16 +1,20 @@
 {
-  "name": "napi-darwin-x64",
-  "version": "0.0.0",
+  "name": "napi-rs-child-process-darwin-x64",
+  "version": "0.0.5",
   "os": [
     "darwin"
   ],
   "cpu": [
     "x64"
   ],
-  "main": "napi.darwin-x64.node",
+  "main": "napi-rs-child-process.darwin-x64.node",
   "files": [
-    "napi.darwin-x64.node"
+    "napi-rs-child-process.darwin-x64.node"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/maxmcd/napi-rs-child-process.git"
+  },
   "license": "MIT",
   "engines": {
     "node": ">= 10"
