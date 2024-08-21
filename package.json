@@ -16,7 +16,7 @@
   },
   "type": "module",
   "license": "MIT",
-  "devDependencies": {
+  "devDependencies": {rm n
     "@napi-rs/cli": "^2.18.4",
     "vitest": "^2.0.4",
     "@types/node": "^20.12.7",
@@ -35,14 +35,15 @@
   },
   "scripts": {
     "artifacts": "napi artifacts",
-    "build": "napi build --js=false --platform --release",
+    "build": "napi build --js=false --platform --release && rm index.d.ts",
     "build:ts": "npx tsc",
-    "build:debug": "napi build --js=false --platform",
+    "build:debug": "napi build --js=false --no-dts-header --platform && rm index.d.ts",
     "prepublishOnly": "napi prepublish -t npm",
     "test": "vitest run",
     "bench": "vitest bench --run",
     "lint": "npx tsc --noEmit",
     "universal": "napi universal",
-    "version": "napi version"
+    "version": "napi version",
+    "bump-version": "npx tsx scripts/bump-version.ts"
   }
 }

@@ -197,6 +197,7 @@ jobs:
       - name: compile ts
         run: |
           npm run build:ts
+          find . -type f -name "*.ts" ! -name "*.d.ts" -exec rm -f {} \;
           ls -lah
       - name: Publish
         run: |

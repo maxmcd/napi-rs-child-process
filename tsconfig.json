@@ -7,8 +7,15 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "esModuleInterop": true,
+    "declaration": true,
     "allowSyntheticDefaultImports": true,
   },
-  "include": ["."],
-  "exclude": ["node_modules", "examples"]
+  "include": [
+    "."
+  ],
+  "exclude": [
+    "node_modules",
+    "examples",
+    "scripts"
+  ]
 }
