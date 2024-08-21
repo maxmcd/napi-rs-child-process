@@ -191,14 +191,16 @@ jobs:
       - name: napi artifacts
         run: npx napi artifacts
       - name: List packages
-        run: ls -R ./
-        shell: bash
+        run: |
+          ls -R ./npm
+          ls -lah
       - name: compile ts
         run: |
           rm *.test.ts *.bench.ts *.rs src/*.rs Cargo.*
           npm run build:ts
           rm -rf examples
           rm *.ts
+          ls -lah
       - name: Publish
         run: |
           set +x
