@@ -71,10 +71,23 @@ export class ChildProcess extends EventEmitter {
           this.#stdoutCallback,
           this.#stderrCallback
         )
-          .then((pid: number) => (this.#pid = pid))
+          .then((pid: number) => {
+            this.#pid = pid;
+            // TODO: very unclear why this needs a listener
+            this.emit("spawn", () => {});
+          })
           .catch((err: any) => this.emit("error", err));
       })
       .catch((err) => this.emit("error", err));
+  }
+  get exitCode() {
+    return this.#exitCode;
+  }
+  get signalCode() {
+    return this.#signalCode;
+  }
+  get pid() {
+    return this.#pid;
   }
   #exitCallback = (_err: Error | null, code: number, signal: number) => {
     this.#exitCode = signal === 0 ? code : null;
