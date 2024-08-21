@@ -188,15 +188,16 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: artifacts
+      - name: napi artifacts
+        run: npx napi artifacts
       - name: List packages
-        run: ls -R ./npm
-        shell: bash
+        run: |
+          ls -R ./npm
+          ls -lah
       - name: compile ts
         run: |
-          rm *.test.ts *.bench.ts *.rs src/*.rs Cargo.*
           npm run build:ts
-          rm -rf examples
-          rm *.ts
+          ls -lah
       - name: Publish
         run: |
           set +x
