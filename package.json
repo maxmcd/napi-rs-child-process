@@ -1,6 +1,6 @@
 {
   "name": "napi-rs-child-process",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "main": "index.js",
   "types": "index.d.ts",
   "napi": {
@@ -16,7 +16,7 @@
   },
   "type": "module",
   "license": "MIT",
-  "devDependencies": {rm n
+  "devDependencies": {
     "@napi-rs/cli": "^2.18.4",
     "vitest": "^2.0.4",
     "@types/node": "^20.12.7",
