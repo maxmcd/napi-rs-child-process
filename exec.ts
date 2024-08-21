@@ -42,25 +42,17 @@ export async function execFile(
 
   let cp = spawn(command, args, options as SpawnOptions);
   let cmd = `${command} ${args.join(" ")}`;
-  return await new Promise((resolve) => {
+  return await new Promise((resolve, reject) => {
     let stdout = "";
     let stderr = "";
     cp.stdout.on("data", (data) => (stdout += data));
     cp.stderr.on("data", (data) => (stderr += data));
     cp.on("error", (err) =>
-      resolve({
-        err: new ExecError(err.message, null, null, cmd),
-        stdout,
-        stderr,
-      })
+      reject(new ExecError(err.message, null, null, cmd))
     );
     cp.on("close", (code, signal) => {
       if (code === 0) return resolve({ err: null, stdout, stderr });
-      resolve({
-        err: new ExecError(`Command failed: ${command}`, code, signal, cmd),
-        stdout,
-        stderr,
-      });
+      reject(new ExecError(`Command failed: ${command}`, code, signal, cmd));
     });
   });
 }
