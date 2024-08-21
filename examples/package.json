@@ -10,6 +10,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "napi-rs-child-process": "^0.0.3"
+    "napi-rs-child-process": "^0.0.5"
   }
 }
