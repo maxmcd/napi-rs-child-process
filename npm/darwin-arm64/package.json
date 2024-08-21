@@ -1,5 +1,5 @@
 {
-  "name": "napi-rs-child-process",
+  "name": "napi-rs-child-process-darwin-arm64",
   "version": "0.0.5",
   "os": [
     "darwin"
@@ -7,9 +7,9 @@
   "cpu": [
     "arm64"
   ],
-  "main": "napi.darwin-arm64.node",
+  "main": "napi-rs-child-process.darwin-arm64.node",
   "files": [
-    "napi.darwin-arm64.node"
+    "napi-rs-child-process.darwin-arm64.node"
   ],
   "repository": {
     "type": "git",

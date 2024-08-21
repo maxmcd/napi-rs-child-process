@@ -1,5 +1,5 @@
 {
-  "name": "napi-rs-child-process",
+  "name": "napi-rs-child-process-linux-x64-gnu",
   "version": "0.0.5",
   "os": [
     "linux"
@@ -7,9 +7,9 @@
   "cpu": [
     "x64"
   ],
-  "main": "napi.linux-x64-gnu.node",
+  "main": "napi-rs-child-process.linux-x64-gnu.node",
   "files": [
-    "napi.linux-x64-gnu.node"
+    "napi-rs-child-process.linux-x64-gnu.node"
   ],
   "repository": {
     "type": "git",
